@@ -10,606 +10,507 @@ import Cocoa
 import AVKit
 import AVFoundation
 import ScreenSaver
-
-class TimeOfDay {
-    let title: String
-    var videos: [AerialVideo] = [AerialVideo]()
-    
-    init(title: String) {
-        self.title = title
-    }
-    
-}
-
-class City {
-    var night: TimeOfDay = TimeOfDay(title: "night")
-    var day: TimeOfDay = TimeOfDay(title: "day")
-    let name: String
-    
-    init(name: String) {
-        self.name = name
-    }
-    
-    func addVideoForTimeOfDay(_ timeOfDay: String, video: AerialVideo) {
-        if timeOfDay.lowercased() == "night" {
-            video.arrayPosition = night.videos.count
-            night.videos.append(video)
-        } else {
-            video.arrayPosition = day.videos.count
-            day.videos.append(video)
-        }
-    }
-}
+import CoreLocation
+import Sparkle
 
 @objc(PreferencesWindowController)
-class PreferencesWindowController: NSWindowController, NSOutlineViewDataSource,
-NSOutlineViewDelegate, VideoDownloadDelegate {
+// swiftlint:disable:next type_body_length
+final class PreferencesWindowController: NSWindowController, NSOutlineViewDataSource, NSOutlineViewDelegate {
 
-    @IBOutlet var outlineView: NSOutlineView!
-    @IBOutlet var playerView: AVPlayerView!
-    @IBOutlet var differentAerialCheckbox: NSButton!
-    @IBOutlet var showDescriptionsCheckbox: NSButton!
-    @IBOutlet var projectPageLink: NSButton!
-    @IBOutlet var cacheLocation: NSPathControl!
-    @IBOutlet var cacheAerialsAsTheyPlayCheckbox: NSButton!
-    @IBOutlet var popupVideoFormat: NSPopUpButton!
-    @IBOutlet var descriptionModePopup: NSPopUpButton!
-    @IBOutlet var versionLabel: NSTextField!
+    lazy var customVideosController: CustomVideoController = CustomVideoController()
+
+    // Main UI
+    @IBOutlet weak var prefTabView: NSTabView!
+    @IBOutlet weak var downloadProgressIndicator: NSProgressIndicator!
+    @IBOutlet weak var downloadStopButton: NSButton!
+    @IBOutlet var versionButton: NSButton!
+    @IBOutlet var closeButton: NSButton!
+
+    // Popovers
     @IBOutlet var popover: NSPopover!
-    
+    @IBOutlet var popoverH264Indicator: NSButton!
+    @IBOutlet var popoverHEVCIndicator: NSButton!
+    @IBOutlet var popoverH264Label: NSTextField!
+    @IBOutlet var popoverHEVCLabel: NSTextField!
+    @IBOutlet var secondProjectPageLink: NSButton!
+
+    @IBOutlet var popoverHDR: NSPopover!
+
+    @IBOutlet var popoverTime: NSPopover!
+    @IBOutlet var linkTimeWikipediaButton: NSButton!
+
+    @IBOutlet var popoverPower: NSPopover!
+    @IBOutlet var popoverUpdate: NSPopover!
+
+    // Videos tab
+    @IBOutlet var outlineView: NSOutlineView!
+    @IBOutlet var outlineViewSettings: NSButton!
+
+    @IBOutlet var videoMenu: NSMenu!
+    @IBOutlet var rightClickOpenQuickTimeMenuItem: NSMenuItem!
+    @IBOutlet var rightClickDownloadVideoMenuItem: NSMenuItem!
+    @IBOutlet var rightClickMoveToTrashMenuItem: NSMenuItem!
+
+    @IBOutlet var videoSetsButton: NSButton!
+
+    @IBOutlet var playerView: AVPlayerView!
+    @IBOutlet var previewDisabledTextfield: NSTextField!
+
+    @IBOutlet var fadeInOutModePopup: NSPopUpButton!
+    @IBOutlet var popupVideoFormat: NSPopUpButton!
+    @IBOutlet var useHDRCheckbox: NSButton!
+
+    @IBOutlet var overrideOnBatteryCheckbox: NSButton!
+    @IBOutlet var alternatePopupVideoFormat: NSPopUpButton!
+    @IBOutlet var powerSavingOnLowBatteryCheckbox: NSButton!
+    @IBOutlet var rightArrowKeyPlaysNextCheckbox: NSButton!
+    @IBOutlet var synchronizedModeCheckbox: NSButton!
+    @IBOutlet var projectPageLink: NSButton!
+
+    // Displays tab
+    @IBOutlet var displayInstructionLabel: NSTextField!
+    @IBOutlet var newDisplayModePopup: NSPopUpButton!
+    @IBOutlet var newViewingModePopup: NSPopUpButton!
+    @IBOutlet var aspectModePopup: NSPopUpButton!
+
+    @IBOutlet var displayMarginBox: NSBox!
+    @IBOutlet var horizontalDisplayMarginTextfield: NSTextField!
+    @IBOutlet var verticalDisplayMarginTextfield: NSTextField!
+
+    @IBOutlet var displayMarginAdvancedMode: NSButton!
+
+    @IBOutlet var displayMarginAdvancedEdit: NSButton!
+    // Text tab
+    @IBOutlet var showDescriptionsCheckbox: NSButton!
+    @IBOutlet var descriptionModePopup: NSPopUpButton!
+    @IBOutlet weak var fadeInOutTextModePopup: NSPopUpButton!
+    @IBOutlet var localizeForTvOS12Checkbox: NSButton!
+    @IBOutlet var currentLocaleLabel: NSTextField!
+    @IBOutlet weak var useCommunityCheckbox: NSButton!
+    @IBOutlet var ciOverrideLanguagePopup: NSPopUpButton!
+
+    @IBOutlet var currentFontLabel: NSTextField!
+    @IBOutlet var fontPickerButton: NSButton!
+    @IBOutlet var fontResetButton: NSButton!
+
+    @IBOutlet var changeCornerMargins: NSButton!
+    @IBOutlet var marginHorizontalTextfield: NSTextField!
+    @IBOutlet var marginVerticalTextfield: NSTextField!
+    @IBOutlet var secondaryMarginHorizontalTextfield: NSTextField!
+    @IBOutlet var secondaryMarginVerticalTextfield: NSTextField!
+    @IBOutlet var editMarginButton: NSButton!
+    @IBOutlet var editMarginsPanel: NSPanel!
+    @IBOutlet var editExtraMessagePanel: NSPanel!
+
+    @IBOutlet var cornerContainer: NSTextField!
+    @IBOutlet var cornerTopLeft: NSButton!
+    @IBOutlet var cornerTopRight: NSButton!
+    @IBOutlet var cornerBottomLeft: NSButton!
+    @IBOutlet var cornerBottomRight: NSButton!
+    @IBOutlet var cornerRandom: NSButton!
+
+    @IBOutlet weak var extraCornerPopup: NSPopUpButton!
+    @IBOutlet var showClockCheckbox: NSButton!
+    @IBOutlet weak var withSecondsCheckbox: NSButton!
+    @IBOutlet var showExtraMessage: NSButton!
+    @IBOutlet var extraMessageTextField: NSTextField!
+    @IBOutlet var editExtraMessageButton: NSButton!
+    @IBOutlet var secondaryExtraMessageTextField: NSTextField!
+    @IBOutlet var extraMessageFontLabel: NSTextField!
+    @IBOutlet var extraFontPickerButton: NSButton!
+    @IBOutlet var extraFontResetButton: NSButton!
+
+    // Time Tab
+    @IBOutlet var iconTime1: NSImageCell!
+    @IBOutlet var iconTime2: NSImageCell!
+    @IBOutlet var iconTime3: NSImageCell!
+
+    @IBOutlet var timeCalculateRadio: NSButton!
+    @IBOutlet var latitudeTextField: NSTextField!
+    @IBOutlet var latitudeFormatter: NumberFormatter!
+    @IBOutlet var longitudeTextField: NSTextField!
+    @IBOutlet var longitudeFormatter: NumberFormatter!
+    @IBOutlet var findCoordinatesButton: NSButton!
+    @IBOutlet var extraLatitudeTextField: NSTextField!
+    @IBOutlet var extraLatitudeFormatter: NumberFormatter!
+    @IBOutlet var extraLongitudeTextField: NSTextField!
+    @IBOutlet var extraLongitudeFormatter: NumberFormatter!
+    @IBOutlet var enterCoordinatesButton: NSButton!
+    @IBOutlet var solarModePopup: NSPopUpButton!
+
+    @IBOutlet var timeNightShiftRadio: NSButton!
+    @IBOutlet var nightShiftLabel: NSTextField!
+
+    @IBOutlet var timeManualRadio: NSButton!
+    @IBOutlet var sunriseTime: NSDatePicker!
+    @IBOutlet var sunsetTime: NSDatePicker!
+
+    @IBOutlet var timeLightDarkModeRadio: NSButton!
+    @IBOutlet var lightDarkModeLabel: NSTextField!
+
+    @IBOutlet var timeDisabledRadio: NSButton!
+
+    @IBOutlet var enterCoordinatesPanel: NSPanel!
+    @IBOutlet var calculateCoordinatesLabel: NSTextField!
+
+    @IBOutlet var overrideNightOnDarkMode: NSButton!
+
+    // Brightness tab
+    @IBOutlet var dimBrightness: NSButton!
+    @IBOutlet var dimStartFrom: NSSlider!
+    @IBOutlet var dimFadeTo: NSSlider!
+
+    @IBOutlet var sleepAfterLabel: NSTextField!
+
+    @IBOutlet var overrideDimFadeCheckbox: NSButton!
+    @IBOutlet var dimFadeInMinutes: NSTextField!
+    @IBOutlet var dimFadeInMinutesStepper: NSStepper!
+    @IBOutlet var dimOnlyAtNight: NSButton!
+    @IBOutlet var dimOnlyOnBattery: NSButton!
+
+    // Caches tab
+    @IBOutlet var cacheAerialsAsTheyPlayCheckbox: NSButton!
+    @IBOutlet var neverStreamVideosCheckbox: NSButton!
+    @IBOutlet var neverStreamPreviewsCheckbox: NSButton!
+    @IBOutlet var cacheLocation: NSPathControl!
+    @IBOutlet weak var downloadNowButton: NSButton!
+    @IBOutlet weak var cacheSizeTextField: NSTextField!
+
+    // Updates Tab
+    @IBOutlet var newVideosModePopup: NSPopUpButton!
+    @IBOutlet var checkNowButton: NSButton!
+    @IBOutlet var lastCheckedVideosLabel: NSTextField!
+
+    @IBOutlet var automaticallyCheckForUpdatesCheckbox: NSButton!
+    @IBOutlet var allowScreenSaverModeUpdateCheckbox: NSButton!
+    @IBOutlet var allowBetasCheckbox: NSButton!
+    @IBOutlet var betaCheckFrequencyPopup: NSPopUpButton!
+    @IBOutlet var lastCheckedSparkle: NSTextField!
+
+    // Advanced Tab
+    @IBOutlet weak var debugModeCheckbox: NSButton!
+    @IBOutlet weak var showLogBottomClick: NSButton!
+    @IBOutlet weak var logToDiskCheckbox: NSButton!
+    @IBOutlet var logMillisecondsButton: NSButton!
+
+    @IBOutlet var videoVersionsLabel: NSTextField!
+    @IBOutlet var moveOldVideosButton: NSButton!
+    @IBOutlet var trashOldVideosButton: NSButton!
+
+    // Video sets panel
+    @IBOutlet var addVideoSetPanel: NSPanel!
+    @IBOutlet var addVideoSetTextField: NSTextField!
+    @IBOutlet var addVideoSetConfirmButton: NSButton!
+    @IBOutlet var addVideoSetCancelButton: NSButton!
+    @IBOutlet var addVideoSetErrorLabel: NSTextField!
+
+    // Log Panel
+    @IBOutlet var logPanel: NSPanel!
+    @IBOutlet weak var logTableView: NSTableView!
+
+    // Quit confirmation Panel
+    @IBOutlet var quitConfirmationPanel: NSPanel!
+
+    // Change cache folder Panel
+    @IBOutlet var changeCacheFolderPanel: NSPanel!
+    @IBOutlet var cacheFolderTextField: NSTextField!
+
+    @IBOutlet var displayMarginAdvancedPanel: NSPanel!
+    @IBOutlet var displayMarginAdvancedTextfield: NSTextField!
+
     var player: AVPlayer = AVPlayer()
-    
+
     var videos: [AerialVideo]?
     // cities -> time of day -> videos
     var cities = [City]()
-    
+
     static var loadedJSON: Bool = false
-    
+
     lazy var preferences = Preferences.sharedInstance
-    
-    // MARK: - Init
-    
+
+    let fontManager: NSFontManager
+    var fontEditing = 0     // To track the font we are changing
+
+    var highestLevel: ErrorLevel?  // To track the largest level of error received
+
+    var savedBrightness: Float?
+
+    var locationManager: CLLocationManager?
+    var sparkleUpdater: SUUpdater?
+
+    @IBOutlet var displayView: DisplayView!
+    public var appMode: Bool = false
+
+    lazy var timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter
+    }()
+
+    lazy var dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .none
+        formatter.timeStyle = .medium
+        return formatter
+    }()
+
     required init?(coder decoder: NSCoder) {
+        self.fontManager = NSFontManager.shared
+        debugLog("pwc init1")
         super.init(coder: decoder)
     }
+
+    // We start here from SysPref and App mode
     override init(window: NSWindow?) {
+        self.fontManager = NSFontManager.shared
+        debugLog("pwc init2")
         super.init(window: window)
-        
     }
-    
+
     // MARK: - Lifecycle
-    
+    // Before Sparkle tries to restart Aerial, we dismiss the sheet *and* quit System Preferences
+    // This is required as killing Aerial will crash the preview outside of Aerial, in System Preferences
+    @objc func sparkleWillRestart() {
+        debugLog("Sparkle will restart, properly quitting")
+        window?.sheetParent?.endSheet(window!)
+        for app in NSWorkspace.shared.runningApplications where app.bundleIdentifier == "com.apple.systempreferences" {
+            app.terminate()
+        }
+    }
+
+    // sawiftlint:disable:next cyclomatic_complexity
     override func awakeFromNib() {
         super.awakeFromNib()
-        
-        if let previewPlayer = AerialView.previewPlayer {
-            self.player = previewPlayer
+
+        // We register for the notification just before Sparkle tries to terminate Aerial
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(self.sparkleWillRestart),
+            name: Notification.Name.SUUpdaterWillRestart,
+            object: nil)
+
+        // Starting the Sparkle update system
+        sparkleUpdater = SUUpdater.init(for: Bundle(for: PreferencesWindowController.self))
+        // We override the feeds for betas
+        if preferences.allowBetas {
+            sparkleUpdater?.feedURL = URL(string: "https://raw.githubusercontent.com/JohnCoates/Aerial/master/beta-appcast.xml")
         }
-        
 
-        outlineView.floatsGroupRows = false
-        loadJSON()
+        // Setup the updates for the Logs
+        let logger = Logger.sharedInstance
+        logger.addCallback {level in
+            self.updateLogs(level: level)
+        }
 
-        
+        // Setup the updates for the download status
+        let videoManager = VideoManager.sharedInstance
+        videoManager.addCallback { done, total in
+            self.updateDownloads(done: done, total: total, progress: 0)
+        }
+        videoManager.addProgressCallback { done, total, progress in
+            self.updateDownloads(done: done, total: total, progress: progress)
+        }
+
+        loadJSON()  // Async loading
+
+        logTableView.delegate = self
+        logTableView.dataSource = self
+
+        // Grab version from bundle
         if let version = Bundle(identifier: "com.johncoates.Aerial-Test")?.infoDictionary?["CFBundleShortVersionString"] as? String {
-            versionLabel.stringValue = version
+            versionButton.title = version
+        } else if let version = Bundle(identifier: "com.JohnCoates.Aerial")?.infoDictionary?["CFBundleShortVersionString"] as? String {
+            versionButton.title = version
         }
-        if let version = Bundle(identifier: "com.JohnCoates.Aerial")?.infoDictionary?["CFBundleShortVersionString"] as? String {
-            versionLabel.stringValue = version
+        debugLog("Aerial control panel V\(versionButton.title)")
+
+        setupVideosTab()
+        setupDisplaysTab()
+        setupTextTab()
+        setupTimeTab()
+        setupBrightnessTab()
+        setupCacheTab()
+        setupUpdatesTab()
+        setupAdvancedTab()
+
+        colorizeProjectPageLinks()
+
+        // To workaround our High Sierra issues with textfields, we have separate panels
+        // that replicate the features and are editable. They are hidden unless needed.
+        if #available(OSX 10.14, *) {
+            editMarginButton.isHidden = true
+            editExtraMessageButton.isHidden = true
+            enterCoordinatesButton.isHidden = true
+        } else {
+            marginHorizontalTextfield.isEnabled = false
+            marginVerticalTextfield.isEnabled = false
+            extraMessageTextField.isEnabled = false
+            latitudeTextField.isEnabled = false
+            longitudeTextField.isEnabled = false
         }
 
+        // We also load our CustomVideos nib here
+        let bundle = Bundle(for: PreferencesWindowController.self)
+        var topLevelObjects: NSArray? = NSArray()
+        if !bundle.loadNibNamed(NSNib.Name("CustomVideos"),
+                            owner: customVideosController,
+                            topLevelObjects: &topLevelObjects) {
+            errorLog("Could not load nib for CustomVideos, please report")
+        }
+    }
 
-        playerView.player = player
-        playerView.controlsStyle = .none
-        if #available(OSX 10.10, *) {
-            playerView.videoGravity = AVLayerVideoGravity.resizeAspectFill
-        }
-        
-        if preferences.differentAerialsOnEachDisplay {
-            differentAerialCheckbox.state = NSControl.StateValue.on
-        }
-        
-        if preferences.showDescriptions {
-            showDescriptionsCheckbox.state = NSControl.StateValue.on
-        }
-        
-        
-        if !preferences.cacheAerials {
-            cacheAerialsAsTheyPlayCheckbox.state = NSControl.StateValue.off
-        }
-        
-        popupVideoFormat.selectItem(at: preferences.videoFormat!)
-        
-        descriptionModePopup.selectItem(at: preferences.showDescriptionsMode!)
-        
-        colorizeProjectPageLink()
-        
-        if let cacheDirectory = VideoCache.cacheDirectory {
-            cacheLocation.url = URL(fileURLWithPath: cacheDirectory as String)
-        }
-        
-        cacheStatusLabel.isEditable = false
-    }
-    
-    // MARK: - Setup
-    
-    fileprivate func colorizeProjectPageLink() {
-        let color = NSColor(calibratedRed: 0.18, green: 0.39, blue: 0.76, alpha: 1)
-        let link = projectPageLink.attributedTitle
-        let coloredLink = NSMutableAttributedString(attributedString: link)
-        let fullRange = NSRange(location: 0, length: coloredLink.length)
-        coloredLink.addAttribute(NSAttributedString.Key.foregroundColor,
-                                 value: color,
-                                  range: fullRange)
-        projectPageLink.attributedTitle = coloredLink
-    }
-    
-    // MARK: - Preferences
-    @IBAction func helpButtonClick(_ button: NSButton!) {
-        popover.show(relativeTo: button.preparedContentRect, of: button, preferredEdge: .maxY)
-    }
-    
-    @IBAction func cacheAerialsAsTheyPlayClick(_ button: NSButton!) {
-        debugLog("cache aerials as they play: \(convertFromNSControlStateValue(button.state))")
-        
-        let onState = (button.state == NSControl.StateValue.on)
-        preferences.cacheAerials = onState
-    }
-    
-    @IBAction func userSetCacheLocation(_ button: NSButton?) {
-        let openPanel = NSOpenPanel()
-        
-        openPanel.canChooseDirectories = true
-        openPanel.canChooseFiles = false
-        openPanel.canCreateDirectories = true
-        openPanel.allowsMultipleSelection = false
-        openPanel.title = "Choose Aerial Cache Directory"
-        openPanel.prompt = "Choose"
-        openPanel.directoryURL = cacheLocation.url
-        
-        openPanel.begin { result in
-            guard result.rawValue == NSFileHandlingPanelOKButton,
-                openPanel.urls.count > 0 else {
-                return
-            }
-            
-            let cacheDirectory = openPanel.urls[0]
-            self.preferences.customCacheDirectory = cacheDirectory.path
-            self.cacheLocation.url = cacheDirectory
-        }
-    }
-    @IBAction func resetCacheLocation(_ button: NSButton?) {
-        preferences.customCacheDirectory = nil
-        if let cacheDirectory = VideoCache.cacheDirectory {
-            cacheLocation.url = URL(fileURLWithPath: cacheDirectory as String)
-        }
-    }
-    
-    @IBAction func outlineViewSettingsClick(_ button: NSButton) {
-        let menu = NSMenu()
-        menu.insertItem(withTitle: "Uncheck All",
-            action: #selector(PreferencesWindowController.outlineViewUncheckAll(button:)),
-            keyEquivalent: "",
-            at: 0)
-        
-        menu.insertItem(withTitle: "Check All",
-            action: #selector(PreferencesWindowController.outlineViewCheckAll(button:)),
-            keyEquivalent: "",
-            at: 1)
-        
-        let event = NSApp.currentEvent
-        NSMenu.popUpContextMenu(menu, with: event!, for: button)
-    }
-    /*
-    @IBAction func radioResolution(_ sender: NSButton) {
-        NSLog(sender.title)
-        if resolution4KRadio.state == NSControl.StateValue.on {
-            preferences.use4KVideos = true
-        }
-        else
-        {
-            preferences.use4KVideos = false
-        }
-    }
-    */
-    @IBAction func popupVideoFormatChange(_ sender:NSPopUpButton) {
-        NSLog("index change : \(sender.indexOfSelectedItem)")
-        preferences.videoFormat = sender.indexOfSelectedItem
-    }
-    
-    @IBAction func descriptionModePopupChange(_ sender:NSPopUpButton) {
-        NSLog("dindex change : \(sender.indexOfSelectedItem)")
-        
-        preferences.showDescriptionsMode = sender.indexOfSelectedItem
-    }
-    
-    @objc func outlineViewUncheckAll(button: NSButton) {
-        setAllVideos(inRotation: false)
-    }
-    
-    @objc func outlineViewCheckAll(button: NSButton) {
-        setAllVideos(inRotation: true)
-    }
-    
-    func setAllVideos(inRotation: Bool) {
-        guard let videos = videos else {
-            return
-        }
-        
-        for video in videos {
-            preferences.setVideo(videoID: video.id,
-                                 inRotation: inRotation,
-                                 synchronize: false)
-        }
-        preferences.synchronize()
-        
+    override func windowDidLoad() {
+        super.windowDidLoad()
+
+        // Workaround for garbled icons on non retina, we force redraw
         outlineView.reloadData()
+        debugLog("wdl")
     }
-    
-    @IBAction func differentAerialsOnEachDisplayCheckClick(_ button: NSButton?) {
-        let state = differentAerialCheckbox.state
-        let onState = (state == NSControl.StateValue.on)
-        
-        preferences.differentAerialsOnEachDisplay = onState
-        
-        debugLog("set differentAerialsOnEachDisplay to \(onState)")
-    }
-    
-    @IBAction func showDescriptionsClick(button: NSButton?) {
-        let state = showDescriptionsCheckbox.state
-        let onState = (state == NSControl.StateValue.on)
-        
-        preferences.showDescriptions = onState
-        
-        debugLog("set showDescriptions to \(onState)")
-    }
-    
 
-    
-    // MARK: - Link
-    
+    @IBAction func close(_ sender: AnyObject?) {
+        // We ask for confirmation in case downloads are ongoing
+        if !downloadProgressIndicator.isHidden {
+            quitConfirmationPanel.makeKeyAndOrderFront(self)
+        } else {
+            // This seems needed for screensavers as our lifecycle is different from a regular app
+            preferences.synchronize()
+            logPanel.close()
+            if appMode {
+                NSApplication.shared.terminate(nil)
+            } else {
+                window?.sheetParent?.endSheet(window!)
+            }
+        }
+    }
+
+    @IBAction func confirmQuitClick(_ sender: Any) {
+        quitConfirmationPanel.close()
+        preferences.synchronize()
+        logPanel.close()
+        if appMode {
+            NSApplication.shared.terminate(nil)
+        } else {
+            window?.sheetParent?.endSheet(window!)
+        }
+    }
+
+    @IBAction func cancelQuitClick(_ sender: Any) {
+        quitConfirmationPanel.close()
+    }
+
+    // MARK: - Setup
+
+    fileprivate func colorizeProjectPageLinks() {
+        let color = NSColor(calibratedRed: 0.18, green: 0.39, blue: 0.76, alpha: 1)
+        var coloredLink = NSMutableAttributedString(attributedString: projectPageLink.attributedTitle)
+        var fullRange = NSRange(location: 0, length: coloredLink.length)
+        coloredLink.addAttribute(.foregroundColor, value: color, range: fullRange)
+        projectPageLink.attributedTitle = coloredLink
+
+        // We have an extra project link on the video format popover, color it too
+        coloredLink = NSMutableAttributedString(attributedString: secondProjectPageLink.attributedTitle)
+        fullRange = NSRange(location: 0, length: coloredLink.length)
+        coloredLink.addAttribute(.foregroundColor, value: color, range: fullRange)
+        secondProjectPageLink.attributedTitle = coloredLink
+
+        // We have an extra project link on the video format popover, color it too
+        coloredLink = NSMutableAttributedString(attributedString: linkTimeWikipediaButton.attributedTitle)
+        fullRange = NSRange(location: 0, length: coloredLink.length)
+        coloredLink.addAttribute(.foregroundColor, value: color, range: fullRange)
+        linkTimeWikipediaButton.attributedTitle = coloredLink
+
+        // We have an extra project link on the video format popover, color it too
+        coloredLink = NSMutableAttributedString(attributedString: versionButton.attributedTitle)
+        fullRange = NSRange(location: 0, length: coloredLink.length)
+        coloredLink.addAttribute(.foregroundColor, value: color, range: fullRange)
+        versionButton.attributedTitle = coloredLink
+
+    }
+
+    @IBAction func versionButtonClick(_ sender: Any) {
+        let workspace = NSWorkspace.shared
+        var url: URL
+
+        if versionButton.title.contains("beta") {
+            url = URL(string: "https://github.com/JohnCoates/Aerial/releases/tag/v" + versionButton.title)!
+        } else {
+            url = URL(string: "https://github.com/JohnCoates/Aerial/blob/master/Documentation/ChangeLog.md")!
+        }
+
+        workspace.open(url)
+    }
+
+    // MARK: - Links
+
     @IBAction func pageProjectClick(_ button: NSButton?) {
         let workspace = NSWorkspace.shared
         let url = URL(string: "http://github.com/JohnCoates/Aerial")!
         workspace.open(url)
     }
-    
+
     // MARK: - Manifest
-    
+
     func loadJSON() {
         if PreferencesWindowController.loadedJSON {
             return
         }
         PreferencesWindowController.loadedJSON = true
-        
+
         ManifestLoader.instance.addCallback { manifestVideos in
             self.loaded(manifestVideos: manifestVideos)
-       }
+        }
     }
-    
+
+    func reloadJson() {
+        ManifestLoader.instance.reloadFiles()
+    }
+
     func loaded(manifestVideos: [AerialVideo]) {
+        debugLog("Callback after manifest loading")
         var videos = [AerialVideo]()
         var cities = [String: City]()
-        for video in manifestVideos {
+
+        // Grab a fresh version, because our callback can be feeding us wrong data in CVC
+        let freshManifestVideos = ManifestLoader.instance.loadedManifest
+        //debugLog("freshManifestVideos count : \(freshManifestVideos.count)")
+
+        // First day, then night
+        for video in freshManifestVideos {
             let name = video.name
-            
+
             if cities.keys.contains(name) == false {
                 cities[name] = City(name: name)
             }
-        
             let city = cities[name]!
-        
+
             let timeOfDay = video.timeOfDay
             city.addVideoForTimeOfDay(timeOfDay, video: video)
+
             videos.append(video)
         }
 
         self.videos = videos
-        
+
         // sort cities by name
         let unsortedCities = cities.values
         let sortedCities = unsortedCities.sorted { $0.name < $1.name }
 
         self.cities = sortedCities
+
         DispatchQueue.main.async {
             self.outlineView.reloadData()
             self.outlineView.expandItem(nil, expandChildren: true)
         }
 
-    }
-
-    @IBAction func close(_ sender: AnyObject?) {
-        window?.sheetParent?.endSheet(window!)
-    }
-    
-    // MARK: - Outline View Delegate & Data Source
-    
-    func outlineView(_ outlineView: NSOutlineView, numberOfChildrenOfItem item: Any?) -> Int {
-        if item == nil {
-            return cities.count
-        }
-        
-        switch item {
-            /*case is TimeOfDay:
-                let timeOfDay = item as! TimeOfDay
-                return timeOfDay.videos.count*/
-            case is City:
-                /*
-                let city = item as! City
-                
-                var count = 0
-                
-                if city.night.videos.count > 0 {
-                    count += 1
-                }
-                
-                if city.day.videos.count > 0 {
-                    count += 1
-                }
-                 return count
-
-                 */
-                let city = item as! City
-                return city.day.videos.count
-            default:
-                return 0
-        }
-        
-    }
-    
-    func outlineView(_ outlineView: NSOutlineView, isItemExpandable item: Any) -> Bool {
-        switch item {
-        case is TimeOfDay:
-            return true
-        case is City: // cities
-            return true
-        default:
-            return false
-        }
-    }
-    
-    func outlineView(_ outlineView: NSOutlineView, child index: Int, ofItem item: Any?) -> Any {
-        if item == nil {
-            return cities[index]
-        }
-        
-        switch item {
-        case is City:
-            /*
-            let city = item as! City
-            
-            if index == 0 && city.day.videos.count > 0 {
-                return city.day
-            } else {
-                return city.night
-            }*/
-            let city = item as! City
-            return city.day.videos[index]
-            
-        case is TimeOfDay:
-            let timeOfDay = item as! TimeOfDay
-            return timeOfDay.videos[index]
-        
-        default:
-            return false
-        }
-    }
-    
-    func outlineView(_ outlineView: NSOutlineView,
-                     objectValueFor tableColumn: NSTableColumn?, byItem item: Any?) -> Any? {
-        switch item {
-        case is City:
-            let city = item as! City
-            return city.name
-        /*case is TimeOfDay:
-            let timeOfDay = item as! TimeOfDay
-            return timeOfDay.title*/
-            
-        default:
-            return "untitled"
-        }
-    }
-    
-    func outlineView(_ outlineView: NSOutlineView, shouldEdit tableColumn: NSTableColumn?, item: Any) -> Bool {
-        return false
-    }
-    
-    func outlineView(_ outlineView: NSOutlineView, dataCellFor tableColumn: NSTableColumn?, item: Any) -> NSCell? {
-        let row = outlineView.row(forItem: item)
-        return tableColumn!.dataCell(forRow: row) as? NSCell
-    }
-    
-    func outlineView(_ outlineView: NSOutlineView, isGroupItem item: Any) -> Bool {
-        switch item {
-        /*case is TimeOfDay:
-            return true*/
-        case is City:
-            return true
-        default:
-            return false
-        }
-    }
-
-    func outlineView(_ outlineView: NSOutlineView,
-                     viewFor tableColumn: NSTableColumn?, item: Any) -> NSView? {
-        switch item {
-        case is City:
-            let city = item as! City
-            let view = outlineView.makeView(withIdentifier: convertToNSUserInterfaceItemIdentifier("HeaderCell"),
-                                        owner: self) as! NSTableCellView
-            view.textField?.stringValue = city.name
-            
-            return view
-        /*case is TimeOfDay:
-            let timeOfDay = item as! TimeOfDay
-            let view = outlineView.makeView(withIdentifier: convertToNSUserInterfaceItemIdentifier("DataCell"),
-                                        owner: self) as! NSTableCellView
-            
-            view.textField?.stringValue = timeOfDay.title.capitalized
-            
-            let bundle = Bundle(for: PreferencesWindowController.self)
-            if let imagePath = bundle.path(forResource: "icon-\(timeOfDay.title)",
-                ofType:"pdf") {
-                let image = NSImage(contentsOfFile: imagePath)
-                view.imageView?.image = image
-            } else {
-                print("\(#file) failed to find time of day icon")
-            }
-            
-            return view*/
-        case is AerialVideo:
-            let video = item as! AerialVideo
-            let view = outlineView.makeView(withIdentifier: convertToNSUserInterfaceItemIdentifier("CheckCell"),
-                                        owner: self) as! CheckCellView
-            
-            // One based index
-            let number = video.arrayPosition + 1
-            let numberFormatter = NumberFormatter()
-            
-            numberFormatter.numberStyle = NumberFormatter.Style.spellOut
-            guard
-                let numberString = numberFormatter.string(from: number as NSNumber)
-                else {
-                    print("failed to create number with formatter")
-                    return nil
-            }
-            
-            view.textField?.stringValue = numberString.capitalized
-            
-            let isInRotation = preferences.videoIsInRotation(videoID: video.id)
-            
-            if isInRotation {
-                view.checkButton.state = NSControl.StateValue.on
-            } else {
-                view.checkButton.state = NSControl.StateValue.off
-            }
-            
-            view.onCheck = { checked in
-                self.preferences.setVideo(videoID: video.id,
-                                          inRotation: checked)
-            }
-            return view
-        default:
-            return nil
-        }
-    }
-    
-    func outlineView(_ outlineView: NSOutlineView, shouldSelectItem item: Any) -> Bool {
-        switch item {
-        case is AerialVideo:
-            player = AVPlayer()
-            playerView.player = player
-            
-            let video = item as! AerialVideo
-            
-            let asset = CachedOrCachingAsset(video.url)
-//            let asset = AVAsset(URL: video.url)
-            
-            let item = AVPlayerItem(asset: asset)
-            
-            player.replaceCurrentItem(with: item)
-            player.play()
-            
-            return true
-        /*case is TimeOfDay:
-            return false*/
-        default:
-            return false
-        }
-    }
-    
-//    func outlineView(_ outlineView: NSOutlineView, heightOfRowByItem item: Any) -> CGFloat {
-//        switch item {
-//        case is AerialVideo:
-//            return 18
-//        case is TimeOfDay:
-//            return outlineView.textFi
-//        case is City:
-//            return 18
-//        default:
-//            fatalError("unhandled item in heightOfRowByItem for \(item)")
-//        }
-//    }
-    
-    // MARK: - Caching
-    
-    @IBOutlet var totalProgress: NSProgressIndicator!
-    @IBOutlet var currentProgress: NSProgressIndicator!
-    @IBOutlet var cacheStatusLabel: NSTextField!
-    var currentVideoDownload: VideoDownload?
-    var manifestVideos: [AerialVideo]?
-    
-    @IBAction func cacheAllNow(_ button: NSButton) {
-       cacheStatusLabel.stringValue = "Loading JSON"
-        currentProgress.maxValue = 1
-        
-        ManifestLoader.instance.addCallback { (manifestVideos: [AerialVideo]) -> Void in
-            DispatchQueue.main.async(execute: { () -> Void in
-                self.manifestVideos = manifestVideos
-                self.cacheNextVideo()
-                
-            })
-        }
-    }
-    
-    func cacheNextVideo() {
-        guard let manifestVideos = self.manifestVideos else {
-            cacheStatusLabel.stringValue = "Couldn't load manifest!"
-            return
-        }
-        
-        let uncached = manifestVideos.filter { (video) -> Bool in
-            return video.isAvailableOffline == false
-        }
-        
-        NSLog("uncached: \(uncached)")
-        
-        totalProgress.maxValue = Double(manifestVideos.count)
-        totalProgress.doubleValue = Double(manifestVideos.count) - Double(uncached.count)
-        NSLog("total process max value: \(totalProgress.maxValue), current value: \(totalProgress.doubleValue)")
-        
-        if uncached.count == 0 {
-            cacheStatusLabel.stringValue = "All videos have been cached"
-            return
-        }
-        
-        let video = uncached[0]
-        
-        // find video that hasn't been cached
-        let videoDownload = VideoDownload(video: video, delegate: self)
-        
-        cacheStatusLabel.stringValue = "Caching video \(video.name) \(video.timeOfDay.capitalized): \(video.url)"
-        
-        currentVideoDownload = videoDownload
-        videoDownload.startDownload()
-    }
- 
-    // MARK: - Video Download Delegate
-    
-    func videoDownload(_ videoDownload: VideoDownload,
-                       finished success: Bool, errorMessage: String?) {
-        if let message = errorMessage {
-            cacheStatusLabel.stringValue = message
+        // We update the info in the advanced tab
+        let (description, total) = ManifestLoader.instance.getOldFilesEstimation()
+        videoVersionsLabel.stringValue = description
+        if total > 0 {
+            moveOldVideosButton.isEnabled = true
+            trashOldVideosButton.isEnabled = true
         } else {
-            cacheNextVideo()
+            moveOldVideosButton.isEnabled = false
+            trashOldVideosButton.isEnabled = false
         }
-        
-         NSLog("video download finished with success: \(success))")
     }
-    
-    func videoDownload(_ videoDownload: VideoDownload, receivedBytes: Int, progress: Float) {
-        currentProgress.doubleValue = Double(progress)
-//     NSLog("received bytes: \(receivedBytes), progress: \(progress)")
-    }
-    
-}
-
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertFromNSControlStateValue(_ input: NSControl.StateValue) -> Int {
-	return input.rawValue
-}
-
-// Helper function inserted by Swift 4.2 migrator.
-fileprivate func convertToNSUserInterfaceItemIdentifier(_ input: String) -> NSUserInterfaceItemIdentifier {
-	return NSUserInterfaceItemIdentifier(rawValue: input)
 }

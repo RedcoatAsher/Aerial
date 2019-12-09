@@ -1,0 +1,156 @@
+<?xml version="1.0" standalone="yes"?><rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+<channel>
+<title>Aerial</title>
+
+  
+<item>
+<title>1.6.3</title>
+  <description>
+          <![CDATA[
+<ul>
+<li>Fix a bad crash with custom videos and HDR.</li>
+</ul>
+<p>If you are using or planning to upgrade to macOS Catalina, we very much suggest you check this issue about what to expect : https://github.com/JohnCoates/Aerial/issues/801</p>
+          ]]>
+  </description>
+<pubDate>jeu., 24 oct. 2019 14:00:00 +0100</pubDate>
+<sparkle:minimumSystemVersion>10.9</sparkle:minimumSystemVersion>
+<enclosure url="https://github.com/JohnCoates/Aerial/releases/download/v1.6.3/Aerial.saver.zip" sparkle:version="1.6.3" sparkle:shortVersionString="1.6.3" sparkle:edSignature="z1UdHeGDFvMVXWlpu2y52UETr+i1CgcpA3VFsdZCaKfEGNeChv2IfcWIgrmPkLqGvhbchFMcnZlt1Akw1XucDQ==" length="5997634" type="application/octet-stream"/>
+</item>  
+
+<item>
+<title>1.6.2</title>
+  <description>
+          <![CDATA[
+<ul><li>Fix a hang in Catalina when you can't/have a hard time resuming from screensaver.</li>
+<li>Fix Custom Videos in Catalina. You can also drop a folder there to automatically add it.</li></ul>
+<p>If you are using or planning to upgrade to macOS Catalina, we very much suggest you check this issue about what to expect : https://github.com/JohnCoates/Aerial/issues/801</p>
+          ]]>
+    </description>
+<pubDate>mar., 8 oct. 2019 17:00:00 +0100</pubDate>
+<sparkle:minimumSystemVersion>10.9</sparkle:minimumSystemVersion>
+<enclosure url="https://github.com/JohnCoates/Aerial/releases/download/v1.6.2/Aerial.saver.zip" sparkle:version="1.6.2" sparkle:shortVersionString="1.6.2" sparkle:edSignature="av6bEU3Mi3ee06pKh+zR1fWwbLEAUzVMMuuyN2PNQ4j8aWE52pyjN7o9+j+jQJWoAvipj/dU4nsawDcd6bsZDA==" length="5998259" type="application/octet-stream"/>
+</item>  
+
+<item>
+<title>1.6.1</title>
+  <description>
+          <![CDATA[
+<ul><li>Fixes the hang/crash happening when playing the next video on some systems with multiple monitor, since 1.5.0. Many thanks to @markusem !</li></ul>
+
+<p>If you are using or planning to upgrade to macOS Catalina, we very much suggest you check this issue about what to expect : https://github.com/JohnCoates/Aerial/issues/801</p>
+          ]]>
+    </description>
+<pubDate>mar., 1 oct. 2019 14:00:00 +0100</pubDate>
+<sparkle:minimumSystemVersion>10.9</sparkle:minimumSystemVersion>
+<enclosure url="https://github.com/JohnCoates/Aerial/releases/download/v1.6.1/Aerial.saver.zip" sparkle:version="1.6.1" sparkle:shortVersionString="1.6.1" sparkle:edSignature="ScPasldYS9yGIUK48bUfEzxFLXI2pmAllAhVR1TRyJeQNeWV6xVknl4CWVVyyPqSW+G1EXmb8GOy5Goaj/qOBg==" length="5992108" type="application/octet-stream"/>
+</item>  
+
+<item>
+<title>1.6.0a</title>
+  <description>
+          <![CDATA[
+<ul><li>This version includes support for the 15 new videos introduced in tvOS 13, including the 10 Sea videos and 5 new Space videos 🎉</li>
+<li>Adds HDR support for macOS Catalina 🎉</li>
+<li>Starting with this release, Aerial is properly signed and notarized 🎉</li>
+<li>Cache mechanism was changed to accommodate changes in macOS Catalina. We recommend you double check your cache settings after upgrading.</li>
+<li>Add Dutch translation by @sebastiaanspeck !</li>
+<li>Add Traditional Chinese and update Simplified Chinese translations by @LinkeyLeo !</li>
+<li>Add advanced mode for finely tuning the Spanned viewing mode in multi monitor configurations</li>
+<li>This version includes many fixes for various issues including with multi monitor setups and better support for older versions of macOS.</li>
+
+<p>If you are using or planning to upgrade to macOS Catalina, we very much suggest you check this issue about what to expect : https://github.com/JohnCoates/Aerial/issues/801</p>
+          ]]>
+    </description>
+<pubDate>jeu., 26 sept. 2019 19:23:00 +0100</pubDate>
+<sparkle:minimumSystemVersion>10.9</sparkle:minimumSystemVersion>
+<enclosure url="https://github.com/JohnCoates/Aerial/releases/download/v1.6.0a/Aerial.saver.zip" sparkle:version="1.6.0a" sparkle:shortVersionString="1.6.0a" sparkle:edSignature="SkkVk6u5MEBamEhYVbJLCQKT8SUhOhEbiMJmKxfQSzZhaX53ckQfuO2eriOpwH73L9qmPmNmecaJCx16E8fcDw==" length="5992428" type="application/octet-stream"/>
+</item>  
+  
+<item>
+<title>1.5.1beta13</title>
+  <description>
+          <![CDATA[
+<p>This is the beta feed ! Aerial is properly signed and notarized 🎉</p>
+<ul>
+<li>Includes the new tvOS 13 videos, including sea and new space 🎉</li>
+<p>macOS 10.15 Catalina users, we suggest you first check this issue : https://github.com/JohnCoates/Aerial/issues/801</p>
+          ]]>
+    </description>
+<pubDate>mer., 25 sep. 2019 20:16:00 +0100</pubDate>
+<sparkle:minimumSystemVersion>10.9</sparkle:minimumSystemVersion>
+<enclosure url="https://github.com/JohnCoates/Aerial/releases/download/v1.5.1beta13/Aerial.saver.zip" sparkle:version="1.5.1beta13" sparkle:shortVersionString="1.5.1beta13" sparkle:edSignature="4/bh8rb5Y24w+gnLg1eFum2Je2GxhAKCGr7KEtv8wYI6ffpBK8c6UaUdEmPbZYhGErPczMH1GrBaE8OFUoPpDw==" length="5991026" type="application/octet-stream"/>
+</item> 
+
+<item>
+<title>1.5.0</title>
+  <description>
+          <![CDATA[
+<p>1.5.0 brings some pretty big features to Aerial, most importantly:</p>
+
+<ul><li>- Completely rewritten multi monitor support. You can now enable and disable individual displays in the new Display tab.</li>
+<li>- New "Spanned" viewing mode. Selecting this mode will span an Aerial video on all your (selected) screens. You can even adjust margins.</li>
+<li>- Add your own videos to Aerial using the new Custom Videos features. You can add your own videos in the new video manager (found in the menu below the video list).</li></ul>
+
+<p>This version also includes many, many bugfixes! You can check the changelog for more information https://github.com/JohnCoates/Aerial/blob/master/Documentation/ChangeLog.md</p>
+          ]]>
+    </description>
+<pubDate>ven., 31 mai. 2019 11:30:00 +0100</pubDate>
+<sparkle:minimumSystemVersion>10.9</sparkle:minimumSystemVersion>
+<enclosure url="https://github.com/JohnCoates/Aerial/releases/download/v1.5.0/Aerial.saver.zip" sparkle:version="1.5.0" sparkle:shortVersionString="1.5.0" sparkle:edSignature="Q3QYagdIRRrsRBst/W0FsR5w+J0dxIW4pHBjLw7J5aDB14v8nPsEKsJlj75eYXheCDWq/q+3brm7hD8Pypm7Ag==" length="5946329" type="application/octet-stream"/>
+</item>  
+  
+<item>
+<title>1.4.99beta7</title>
+  <description>
+          <![CDATA[
+            <p>This is the beta feed!</p>
+<p>This version fixes many bugs in the new custom videos feature : </p>
+<ul><li>Videos will now play muted (!)</li>
+<li>Video manager now shows informations about resolution and duration of a video</li>
+<li>Fix stepper not working when adding a poi, fixed seeking when adding a poi</li>
+<li>4K custom videos now have the correct 4K badge in main UI</li>
+<li>customvideos.json is now pretty printed for easier manual editing</li>
+<li>Closing the custom video manager now properly reloads the video list in main UI</li></ul> 
+<p>Find more information in this issue #786 !</p>
+<p>Please report any bug you find !</p>            
+          ]]>
+    </description>
+<pubDate>mer., 29 mai. 2019 13:20:29 +0100</pubDate>
+<sparkle:minimumSystemVersion>10.9</sparkle:minimumSystemVersion>
+<enclosure url="https://github.com/JohnCoates/Aerial/releases/download/v1.4.99beta7/Aerial.saver.zip" sparkle:version="1.4.99beta7" sparkle:shortVersionString="1.4.99beta7"  sparkle:edSignature="yT16QQHx3Dyg1A3M2zriuzKc3eLxeHeFdug0lO8T2yLIBFXPoy64gP2thowESfqBWKqh1pentCrYycPZSJ+7Cg==" length="5944919" type="application/octet-stream"/>
+</item>
+
+<item>
+<title>1.4.9</title>
+  <description>
+          <![CDATA[
+            <p>This is the beta feed.</p>
+            <p>This is a bugfix for a crash for homebrew users and users who never starts the control panel. Sorry about that !</p>
+          ]]>
+    </description>
+<pubDate>mer., 1 mai. 2019 13:58:29 +0100</pubDate>
+<sparkle:minimumSystemVersion>10.9</sparkle:minimumSystemVersion>
+<enclosure url="https://github.com/JohnCoates/Aerial/releases/download/v1.4.9/Aerial.saver.zip" sparkle:version="1.4.9" sparkle:shortVersionString="1.4.9"  sparkle:edSignature="C2SILYsMpGsvIVjlKvGmKxUhS2/95DrvD3xOzf2YAiZRh0gnHpNgDXt5OCMwzNd99iVinUAHq2nubqj1XqNPDA==" length="5674907" type="application/octet-stream"/>
+</item>
+
+<item>
+<title>1.4.8</title>
+  <description>
+          <![CDATA[
+            <p>This is the beta feed.</p>
+            <p>This new version includes many new features and enhancements:</p>
+            <ul>
+              <li>Support for January 25th video updates (finally)</li>
+              <li>Automatic updates support through Sparkle. You can manage how Aerial updates itself in the settings</li>
+              <li>Localization for community support in Arabic, Chinese Simplified, English, French, German, Hebrew, Polish and Spanish! Thanks to all the contributors. If you want to help, check our repository we very much welcome new contributions</li>
+              <li>You can now skip an Aerial with the right arrow key</li>
+              <li>You can now save your favorite videos sets to enable them quickly</li>
+            </ul>
+          ]]>
+    </description>
+<pubDate>mar., 30 avr. 2019 18:40:29 +0100</pubDate>
+<sparkle:minimumSystemVersion>10.9</sparkle:minimumSystemVersion>
+<enclosure url="https://github.com/JohnCoates/Aerial/releases/download/v1.4.8/Aerial.saver.zip" sparkle:version="1.4.8" sparkle:shortVersionString="1.4.8"  sparkle:edSignature="5QFV0eqGRqCoZ8/TYbLXWOiVSifwNRUk4wuNFdjXJXpk/cRrceaTcs7SG168dawfOTpy9TOu283mb6WJGRQuDw==" length="5674805" type="application/octet-stream"/>
+</item>
+</channel></rss>
